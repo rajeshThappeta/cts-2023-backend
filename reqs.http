@@ -1,25 +1,28 @@
-get http://localhost:4000/users
+get http://localhost:4000/user-api/users
 
 ###
-get http://localhost:4000/users/300
+get http://localhost:4000/user-api/users/100
 
 ###
-post http://localhost:4000/user
+post http://localhost:4000/user-api/user
 Content-Type: application/json
 
 {
-    "id":300,
-    "name":"vikas"
+    "userId":200,
+    "name":"manasa"
 }
 
 ###
-put http://localhost:4000/user
+put http://localhost:4000/user-api/user
 Content-Type: application/json
 
 {
-    "id":200,
-    "name":"bhanu kumar"
+    "userId":100,
+    "name":"suresh kumar"
 }
 
 ###
-delete http://localhost:4000/user/200
+delete http://localhost:4000/user-api/user/200
+
+###
+get http://localhost:4000/product-api/products

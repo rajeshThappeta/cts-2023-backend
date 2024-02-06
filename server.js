@@ -2,71 +2,44 @@
 const exp = require("express");
 const app = exp();
 
+//get mongodb client
+const mc=require('mongodb').MongoClient;
+//connect to mongodb server
+mc.connect('mongodb://localhost:27017')
+.then((client)=>{
+  
+  //get db object
+  const dbObj=client.db('sampledb')
+  //get collection obj
+  const usersCollection=dbObj.collection('users')
+  //add usersCoolection to express onj(app)
+  app.set('usersCollection',usersCollection)
+  
+  console.log("connected to database server")
+})
+.catch(err=>{
+  console.log("err in DB connect",err)
+})
+
+
+
+//import userApp & productApp
+const userApp=require('./APIs/userApi');
+const productApp=require('./APIs/productApi')
 //add body parser
 app.use(exp.json());
 
-//sample user data
-let users = [
-  { id: 100, name: "ravi" },
-  { id: 200, name: "bhanu" },
-];
 
-//USER API (routes)
+//if path starts woth /user-api, execute userApp
+app.use('/user-api',userApp)
+app.use('/product-api',productApp)
 
-//get all users
-app.get("/users", (req, res) => {
-  res.send({ message: "all users", payload: users });
-});
+//error handling middleware
+function errorHandler(err, req, res, next) {
+  res.send({ message: "error occurred", payload: err.message });
+}
 
-//get user by id
-app.get("/users/:id", (req, res) => {
-  //get url param value
-  let id = Number(req.params.id);
-  //find user by id
-  let user = users.find((userObj) => userObj.id === id);
-  //if user not found
-  if (user === undefined) {
-    res.send({ message: "User not found" });
-  } else {
-    res.send({ message: "user", payload: user });
-  }
-});
-
-//post req handler
-app.post("/user", (req, res) => {
-  //get user obj from req
-  let newUser = req.body;
-  //insert new user in the users list
-  users.push(newUser);
-  //send res
-  res.send({ message: "New user created" });
-});
-
-
-//put req handler
-app.put('/user',(req,res)=>{
-    //get modified user obj from req
-    let modifiedUser=req.body;
-    //replace old user with modifiedUser obj
-    let index=users.findIndex(userObj=>userObj.id===modifiedUser.id)
-    users.splice(index,1,modifiedUser)
-    //send res
-    res.send({message:"User modified"})
-})
-
-//delete user by id
-app.delete('/user/:id',(req,res)=>{
-     //get url param value
-  let id = Number(req.params.id);
-   //find id of user to be removed 
-   let index=users.findIndex(userObj=>userObj.id===id)
-   //delete user 
-   users.splice(index,1)
-     //send res
-     res.send({message:"User removed"})
-})
-
-//create products api
+app.use(errorHandler);
 
 //assign port numbrt
 app.listen(4000, () => console.log("http server listenning on port 4000..."));
